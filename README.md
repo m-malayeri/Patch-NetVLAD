@@ -37,17 +37,18 @@ When using code within this repository, please refer the following [paper](https
 The code is licensed under the [MIT License](./LICENSE).
 
 ## Installation
-We recommend using conda (or better: mamba) to install all dependencies. If you have not yet installed conda/mamba, please download and install [`mambaforge`](https://github.com/conda-forge/miniforge).
+We recommend using conda (or better: mamba) to install all dependencies. If you have not yet installed conda/mamba, please download and install [`mambaforge`](https://github.com/conda-forge/miniforge). Note that [issues with recent NumPy versions have been reported](https://github.com/QVPR/Patch-NetVLAD/issues/75) - please use `numpy=1.21` which we know works.
 
 ```bash
 # On Linux:
-conda create -n patchnetvlad python numpy pytorch-gpu torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
+conda create -n patchnetvlad python numpy=1.21 pytorch-gpu torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
 # On MacOS (x86 Intel processor):
-conda create -n patchnetvlad python numpy pytorch torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
+conda create -n patchnetvlad python numpy=1.21 pytorch torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
 # On MacOS (ARM M1/M2 processor):
-conda create -n patchnetvlad python numpy pytorch torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge -c tobiasrobotics
+conda create -n patchnetvlad python numpy=1.21 pytorch torchvision natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge -c tobiasrobotics
 # On Windows:
-conda create -n patchnetvlad python numpy natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
+conda create -n patchnetvlad python numpy=1.21 natsort tqdm opencv pillow scikit-learn faiss matplotlib-base -c conda-forge
+conda activate patchnetvlad
 conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
 
 conda activate patchnetvlad
