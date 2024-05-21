@@ -27,7 +27,7 @@ def ask_yesno(question):
 
 def download_all_models(ask_for_permission=False):
     dest_dir = os.path.join(PATCHNETVLAD_ROOT_DIR, 'pretrained_models')
-    if not ask_for_permission or ask_yesno("Auto-download pretrained models into " + dest_dir + " (takes around 2GB of space)? Yes/no."):
+    if not ask_for_permission or ask_yesno("Auto-download pretrained models into " + dest_dir + " (takes around 3GB of space)? Yes/no."):
         if not os.path.isfile(os.path.join(dest_dir, "mapillary_WPCA128.pth.tar")):
             print('Downloading mapillary_WPCA128.pth.tar')
             urllib.request.urlretrieve("https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/mapillary_WPCA128.pth.tar?download=true", os.path.join(dest_dir, "mapillary_WPCA128.pth.tar"))
@@ -46,6 +46,9 @@ def download_all_models(ask_for_permission=False):
         if not os.path.isfile(os.path.join(dest_dir, "pittsburgh_WPCA4096.pth.tar")):
             print('Downloading pittsburgh_WPCA4096.pth.tar')
             urllib.request.urlretrieve("https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/pitts_WPCA4096.pth.tar?download=true", os.path.join(dest_dir, "pittsburgh_WPCA4096.pth.tar"))
+        if not os.path.isfile(os.path.join(dest_dir, "landmarks_WPCA4096.pth.tar")):
+            print('Downloading landmarks_WPCA4096.pth.tar')
+            urllib.request.urlretrieve("https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/landmarks_WPCA4096.pth.tar?download=true", os.path.join(dest_dir, "landmarks_WPCA4096.pth.tar"))
         print('Downloaded all pretrained models.')
 
 if __name__ == "__main__":

@@ -76,6 +76,7 @@ We provide several pre-trained models and configuration files. The pre-trained m
   wget -O pittsburgh_WPCA128.pth.tar https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/pitts_WPCA128.pth.tar?download=true
   wget -O pittsburgh_WPCA512.pth.tar https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/pitts_WPCA512.pth.tar?download=true
   wget -O pittsburgh_WPCA4096.pth.tar https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/pitts_WPCA4096.pth.tar?download=true
+  wget -O landmarks_WPCA4096.pth.tar https://huggingface.co/TobiasRobotics/Patch-NetVLAD/resolve/main/landmarks_WPCA4096.pth.tar?download=true
   ```
 </details>
 
