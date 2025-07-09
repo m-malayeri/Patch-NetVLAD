@@ -116,4 +116,4 @@ def val(eval_set, model, encoder_dim, device, opt, config, writer, epoch_num=0, 
         if write_tboard:
             writer.add_scalar('Val/Recall@' + str(n), recall_at_n[i], epoch_num)
 
-    return all_recalls
+    return all_recalls, predictions, gt, eval_set

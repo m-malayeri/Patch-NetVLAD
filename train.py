@@ -63,6 +63,8 @@ from patchnetvlad.tools import PATCHNETVLAD_ROOT_DIR
 from tqdm.auto import trange
 
 from patchnetvlad.training_tools.msls import MSLS
+from patchnetvlad.training_tools.lw import LW as LW
+from patchnetvlad.training_tools.visualization import visualize_recalls  # Create this file
 
 
 if __name__ == "__main__":
@@ -151,10 +153,24 @@ if __name__ == "__main__":
             print('===> Finding cluster centroids')
 
             print('===> Loading dataset(s) for clustering')
-            train_dataset = MSLS(opt.dataset_root_dir, mode='test', cities='train', transform=input_transform(),
-                                 bs=int(config['train']['cachebatchsize']), threads=opt.threads,
-                                 margin=float(config['train']['margin']))
+            #train_dataset = MSLS(opt.dataset_root_dir, mode='test', cities='train', transform=input_transform(),
+            #                     bs=int(config['train']['cachebatchsize']), threads=opt.threads,
+            #                     margin=float(config['train']['margin']))
 
+
+            train_dataset = LW(
+                root_dir=opt.dataset_root_dir,
+                databse_file_path=os.path.join(opt.dataset_root_dir, 'train_database.txt'),
+                query_file_path=os.path.join(opt.dataset_root_dir, 'train_query.txt'),
+                transform=input_transform(),
+                mode='train',
+                nNeg=int(config['train']['nNeg']),
+                posDistThr=float(config['train']['posDistThr']),
+                negDistThr=float(config['train']['negDistThr']),
+                cached_queries=int(config['train']['cachebatchsize']),
+                cached_negatives=int(config['train']['cachedNegatives'])  # fallback if needed
+            )
+            
             model = model.to(device)
 
             print('===> Calculating descriptors and clusters')
@@ -198,19 +214,44 @@ if __name__ == "__main__":
 
     print('===> Loading dataset(s)')
     exlude_panos_training = not config['train'].getboolean('includepanos')
-    train_dataset = MSLS(opt.dataset_root_dir, mode='train', nNeg=int(config['train']['nNeg']), transform=input_transform(),
-                         bs=int(config['train']['cachebatchsize']), threads=opt.threads, margin=float(config['train']['margin']),
-                         exclude_panos=exlude_panos_training)
+    
+    #train_dataset = MSLS(opt.dataset_root_dir, mode='train', nNeg=int(config['train']['nNeg']), transform=input_transform(),
+    #                     bs=int(config['train']['cachebatchsize']), threads=opt.threads, margin=float(config['train']['margin']),
+    #                     exclude_panos=exlude_panos_training)
 
-    validation_dataset = MSLS(opt.dataset_root_dir, mode='val', transform=input_transform(),
-                              bs=int(config['train']['cachebatchsize']), threads=opt.threads,
-                              margin=float(config['train']['margin']), posDistThr=25)
+    #validation_dataset = MSLS(opt.dataset_root_dir, mode='val', transform=input_transform(),
+    #                          bs=int(config['train']['cachebatchsize']), threads=opt.threads,
+    #                          margin=float(config['train']['margin']), posDistThr=25)
+
+    train_dataset = LW(
+        root_dir=opt.dataset_root_dir,
+        databse_file_path=os.path.join(opt.dataset_root_dir, 'train_database.txt'),
+        query_file_path=os.path.join(opt.dataset_root_dir, 'train_query.txt'),
+        transform=input_transform(),
+        mode='train',
+        nNeg=int(config['train']['nNeg']),
+        posDistThr=float(config['train']['posDistThr']),
+        negDistThr=float(config['train']['negDistThr']),
+        cached_queries=int(config['train']['cachebatchsize']),
+        cached_negatives=int(config['train']['cachedNegatives'])  # fallback if needed
+    )
+    
+    validation_dataset = LW(
+        root_dir=opt.dataset_root_dir,
+        databse_file_path=os.path.join(opt.dataset_root_dir, 'val_database.txt'),
+        query_file_path=os.path.join(opt.dataset_root_dir, 'val_query.txt'),
+        transform=input_transform(),
+        mode='val',
+        nNeg=0,  # no hard negative mining during val
+        posDistThr=float(config['train']['posDistThr']),
+        negDistThr=0  # doesn't matter for val
+    )
+        
 
     print('===> Training query set:', len(train_dataset.qIdx))
     print('===> Evaluating on val set, query count:', len(validation_dataset.qIdx))
     print('===> Training model')
-    writer = SummaryWriter(
-        log_dir=join(opt.save_path, datetime.now().strftime('%b%d_%H-%M-%S') + '_' + opt.identifier))
+    writer = SummaryWriter(log_dir=join(opt.save_path, datetime.now().strftime('%b%d_%H-%M-%S') + '_' + opt.identifier))
 
     # write checkpoints in logdir
     logdir = writer.file_writer.get_logdir()
@@ -228,8 +269,13 @@ if __name__ == "__main__":
         if scheduler is not None:
             scheduler.step(epoch)
         if (epoch % int(config['train']['evalevery'])) == 0:
-            recalls = val(validation_dataset, model, encoder_dim, device, opt, config, writer, epoch,
-                          write_tboard=True, pbar_position=1)
+            # Call val function
+            recalls, predictions, gt, eval_set = val(validation_dataset, model, encoder_dim, device, opt, config, writer, epoch,
+                                         write_tboard=True, pbar_position=1)
+
+            if epoch == opt.nEpochs:  # or just always
+                visualize_recalls(predictions, gt, eval_set)
+    
             is_best = recalls[5] > best_score
             if is_best:
                 not_improved = 0
